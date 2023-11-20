@@ -3,6 +3,7 @@ from matplotlib import colors
 import pandas as pd
 from scipy.signal import lfilter
 from talib import ADX
+from talib import ATR
 
 def normalizeDeriv(src, quadraticMeanLength):
     """
@@ -307,3 +308,31 @@ def filter_adx(src, length, adxThreshold, useAdxFilter):
         filtered_src = src
 
     return filtered_src
+
+def filter_volatility(high, low, close, minLength, maxLength, useVolatilityFilter):
+    """
+    Applies a volatility filter to the input series.
+
+    Parameters:
+        high (np.array): The high price series.
+        low (np.array): The low price series.
+        close (np.array): The close price series.
+        minLength (int): The minimum length of the ATR.
+        maxLength (int): The maximum length of the ATR.
+        useVolatilityFilter (bool): Whether to use the volatility filter.
+
+    Returns:
+        filter_pass (bool): Boolean indicating whether or not to let the signal pass through the filter.
+    """
+    if useVolatilityFilter:
+        # Calculate the ATR for the given lengths
+        atr_min = ATR(high, low, close, timeperiod=minLength)
+        atr_max = ATR(high, low, close, timeperiod=maxLength)
+
+        # Check if the last value of the shorter ATR is greater than the last value of the longer ATR
+        filter_pass = atr_min[-1] > atr_max[-1]
+    else:
+        # Do not apply the volatility filter
+        filter_pass = True
+
+    return filter_pass
