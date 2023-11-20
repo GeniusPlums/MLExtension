@@ -1,4 +1,5 @@
 import numpy as np
+from matplotlib import colors
 
 def normalizeDeriv(src, quadraticMeanLength):
     """
@@ -58,7 +59,6 @@ def rescale(src, oldMin, oldMax, newMin, newMax):
     rescaled_src = (src - oldMin) * (newMax - newMin) / (oldMax - oldMin) + newMin
 
     return rescaled_src
-from matplotlib import colors
 
 def color_green(prediction):
     """
@@ -80,3 +80,39 @@ def color_green(prediction):
     color = cmap(normalized_prediction)
 
     return color
+
+def color_red(prediction):
+    """
+    Assigns varying shades of the color red based on the KNN classification.
+
+    Parameters:
+        prediction (int|float): Value of the prediction
+
+    Returns:
+        color (tuple): RGB color tuple
+    """
+    # Normalize the prediction to the range [0, 1]
+    normalized_prediction = min(max(prediction, 0), 1)
+
+    # Create a colormap of varying shades of red
+    cmap = colors.LinearSegmentedColormap.from_list("", ["white", "red"])
+
+    # Get the RGB color corresponding to the normalized prediction
+    color = cmap(normalized_prediction)
+
+    return color
+
+def tanh(src):
+    """
+    Returns the hyperbolic tangent of the input series. The sigmoid-like hyperbolic tangent function is used to compress the input to a value between -1 and 1.
+
+    Parameters:
+        src (np.array): The input series (i.e., the normalized derivative).
+
+    Returns:
+        tanh_src (np.array): The hyperbolic tangent of the input series.
+    """
+    # Calculate the hyperbolic tangent of the input series
+    tanh_src = np.tanh(src)
+
+    return tanh_src
