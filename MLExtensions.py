@@ -261,3 +261,49 @@ def n_adx(highSrc, lowSrc, closeSrc, n1):
     signal = (adx - np.min(adx)) / (np.max(adx) - np.min(adx))
 
     return signal
+
+def regime_filter(src, threshold, useRegimeFilter):
+    """
+    Applies a regime filter to the input series.
+
+    Parameters:
+        src (np.array): The input series.
+        threshold (float): The threshold for the regime filter.
+        useRegimeFilter (bool): Whether to apply the regime filter.
+
+    Returns:
+        filtered_src (np.array): The series after applying the regime filter.
+    """
+    if useRegimeFilter:
+        # Apply the regime filter
+        filtered_src = np.where(src > threshold, 1, -1)
+    else:
+        # Do not apply the regime filter
+        filtered_src = src
+
+    return filtered_src
+
+def filter_adx(src, length, adxThreshold, useAdxFilter):
+    """
+    Applies an ADX filter to the input series.
+
+    Parameters:
+        src (np.array): The source series.
+        length (int): The length of the ADX.
+        adxThreshold (int): The ADX threshold.
+        useAdxFilter (bool): Whether to use the ADX filter.
+
+    Returns:
+        filtered_src (np.array): The series after applying the ADX filter.
+    """
+    # Calculate the ADX
+    adx = ADX(src, timeperiod=length)
+
+    if useAdxFilter:
+        # Apply the ADX filter
+        filtered_src = np.where(adx > adxThreshold, 1, -1)
+    else:
+        # Do not apply the ADX filter
+        filtered_src = src
+
+    return filtered_src
