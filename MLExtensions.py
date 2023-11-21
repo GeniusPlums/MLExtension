@@ -336,3 +336,53 @@ def filter_volatility(high, low, close, minLength, maxLength, useVolatilityFilte
         filter_pass = True
 
     return filter_pass
+def backtest(high, low, open, startLongTrade, endLongTrade, startShortTrade, endShortTrade, isStopLossHit, maxBarsBackIndex, thisBarIndex):
+    # Initialize variables
+    longTradeOpen = False
+    shortTradeOpen = False
+    backtestValues = []
+
+    # Iterate over the data
+    for i in range(maxBarsBackIndex, thisBarIndex + 1):
+        # Check if a long trade should be started
+        if startLongTrade[i] and not longTradeOpen:
+            longTradeOpen = True
+            tradeOpenPrice = open[i]
+
+        # Check if a long trade should be ended
+        if endLongTrade[i] and longTradeOpen:
+            longTradeOpen = False
+            tradeClosePrice = open[i]
+            backtestValues.append(('Long', tradeOpenPrice, tradeClosePrice))
+
+        # Check if a short trade should be started
+        if startShortTrade[i] and not shortTradeOpen:
+            shortTradeOpen = True
+            tradeOpenPrice = open[i]
+
+        # Check if a short trade should be ended
+        if endShortTrade[i] and shortTradeOpen:
+            shortTradeOpen = False
+            tradeClosePrice = open[i]
+            backtestValues.append(('Short', tradeOpenPrice, tradeClosePrice))
+
+        # Check if stop loss is hit
+        if isStopLossHit and (longTradeOpen or shortTradeOpen):
+            longTradeOpen = False
+            shortTradeOpen = False
+            tradeClosePrice = open[i]
+            backtestValues.append(('Stop Loss', tradeOpenPrice, tradeClosePrice))
+
+    return tuple(backtestValues)
+import pandas as pd
+
+def init_table():
+    # Initialize an empty DataFrame to store the backtest results
+    tbl = pd.DataFrame(columns=['Trade Type', 'Open', 'Close'])
+
+    return tbl
+def update_table(tbl, tradeStatsHeader, totalTrades, totalWins, totalLosses, winLossRatio, winrate, stopLosses):
+    # Add the trade statistics to the table
+    tbl.loc[tradeStatsHeader] = [totalTrades, totalWins, totalLosses, winLossRatio, winrate, stopLosses]
+
+    return tbl
